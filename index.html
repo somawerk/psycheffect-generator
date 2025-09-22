@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Psychedelic Image Generator</title>
+<title>PsychEffect Generator</title>
 <style>
   body {
     margin: 0;
@@ -52,11 +51,14 @@
   }
 
   .sidebar {
-    width: 320px;
-    background-color: #1c1c1c;
-    padding: 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
+  width: 320px;
+  background-color: #1c1c1c;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
   }
 
   h2 {
@@ -170,19 +172,17 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
+
 .file-upload {
   position: relative;
   width: 100%;
-  margin-bottom: 6px; /* wie die anderen Buttons */
+  margin-bottom: 6px;
 }
 
 .file-upload input[type="file"] {
-  position: absolute;
-  left: 0;
-  top: 0;
   opacity: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   cursor: pointer;
 }
 
@@ -196,6 +196,7 @@
   cursor: pointer;
   border-radius: 4px;
   font-size: 0.9em;
+  text-align: center;
 }
 
 .file-upload button:hover {
@@ -218,11 +219,11 @@
       <h2>Projekt</h2>
       <div class="file-upload">
   <input type="file" id="uploadImage" accept="image/*">
-  <button type="button">Datei auswählen</button>
+  <button type="button">Bild hochladen</button>
 </div>
-      <button id="downloadImage">Download</button>
-      <button id="saveProject">Projekt speichern</button>
-      <button id="loadProject">Projekt laden</button>
+      <button id="downloadImage">Bild herunterladen</button>
+      <button id="saveProject">Projekt exportieren</button>
+      <button id="loadProject">Projekt immportieren</button>
       <div class="slider-container">
         <label>Qualität:</label>
         <input type="range" id="exportQuality" min="50" max="100" step="25" value="75">
@@ -243,8 +244,8 @@
         <label><input type="checkbox" class="fractal" value="mandelbrot"> Mandelbrot</label>
         <label><input type="checkbox" class="fractal" value="julia"> Julia</label>
         <label><input type="checkbox" class="fractal" value="kaleidoskop"> Kaleidoskop</label>
-        <label><input type="checkbox" class="fractal" value="sierpinski"> Sierpinski</label>
-        <label><input type="checkbox" class="fractal" value="koch"> Koch-Kurve</label>
+        <label><input type="checkbox" class="fractal" value="sierpinski"> Sierpinski-Karo</label>
+        <label><input type="checkbox" class="fractal" value="koch"> Diagonale</label>
       </div>
     </div>
 
@@ -271,7 +272,7 @@
         <input type="color" id="secondaryColor" value="#66ccff">
       </div>
       <div class="slider-container">
-        <label>Sättigung</label>
+        <label>Belichtung</label>
         <input type="range" id="saturation" min="0" max="200" value="100">
       </div>
       <div class="slider-container">
@@ -287,17 +288,17 @@
         <input type="range" id="noise" min="0" max="100" value="0">
       </div>
       <div class="slider-container">
-        <label>Struktur</label>
+        <label>Kratzer</label>
         <input type="range" id="structure" min="0" max="100" value="0">
       </div>
       <div class="slider-container">
-        <label>Blur</label>
+        <label>Verschwommen</label>
         <input type="range" id="blur" min="0" max="10" value="0">
       </div>
     </div>
 
     <div class="section">
-      <button id="randomize">Random</button>
+      <button id="randomize">Zufall</button>
     </div>
   </div>
 
@@ -440,3 +441,4 @@ draw();
 </script>
 </body>
 </html>
+
