@@ -170,6 +170,38 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
+.file-upload {
+  position: relative;
+  width: 100%;
+  margin-bottom: 6px; /* wie die anderen Buttons */
+}
+
+.file-upload input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-upload button {
+  width: 100%;
+  display: block;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  padding: 8px 12px;
+  color: #eee;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.file-upload button:hover {
+  background-color: #3a3a3a;
+}
+
 </style>
 </head>
 <body>
@@ -184,7 +216,10 @@
 
     <div class="section">
       <h2>Projekt</h2>
-      <input type="file" id="uploadImage" accept="image/*">
+      <div class="file-upload">
+  <input type="file" id="uploadImage" accept="image/*">
+  <button type="button">Datei auswählen</button>
+</div>
       <button id="downloadImage">Download</button>
       <button id="saveProject">Projekt speichern</button>
       <button id="loadProject">Projekt laden</button>
@@ -346,6 +381,10 @@ function draw(){
   const prim=hexToRgb(primaryColor.value),sec=hexToRgb(secondaryColor.value);
   const sat=saturation.value/100,br=brightness.value/100,cont=contrast.value/100;
   const size=parseFloat(fractalSize.value),reps=parseInt(fractalRepeats.value);
+
+document.querySelector('.file-upload button').addEventListener('click', ()=>{
+  document.getElementById('uploadImage').click();
+});
 
   for(let y=0;y<h;y++){
     for(let x=0;x<w;x++){
