@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psychedelic Image Generator</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #111;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    background-color: #1c1c1c;
+    padding: 10px 20px;
+    border-bottom: 1px solid #333;
+  }
+
+  .app-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ff66cc, #66ccff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #111;
+    margin-right: 10px;
+    font-size: 14px;
+  }
+
+  header h1 {
+    font-size: 1.2em;
+    color: #ff66cc;
+    margin: 0;
+  }
+
+  .container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    width: 320px;
+    background-color: #1c1c1c;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  h2 {
+    margin-top: 20px;
+    font-size: 1em;
+    color: #ff66cc;
+    margin-bottom: 10px;
+  }
+
+  .section {
+    margin-bottom: 20px;
+  }
+
+  .slider-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .slider-container label {
+    flex: 0 0 120px;
+  }
+
+  .slider-container input[type="range"] {
+    flex: 1;
+  }
+
+  .color-picker {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .color-picker label {
+    flex: 0 0 120px;
+  }
+
+  .color-picker input[type="color"] {
+    flex: 1;
+    height: 30px;
+    border: none;
+    background: none;
+  }
+
+  canvas {
+    flex: 1;
+    display: block;
+    background-color: #000;
+  }
+
+  button, input[type="file"], input[type="number"] {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    padding: 8px 12px;
+    color: #eee;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9em;
+    margin: 6px 0;
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  button:hover, input[type="file"]:hover {
+    background-color: #3a3a3a;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ff66cc;
+    cursor: pointer;
+  }
+
+  .fractal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .footer {
+    background-color: #1c1c1c;
+    color: #666;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.8em;
+    border-top: 1px solid #333;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #1c1c1c;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="app-icon">PSY</div>
+  <h1>Psychedelic Image Generator</h1>
+</header>
+
+<div class="container">
+  <div class="sidebar">
+
+    <div class="section">
+      <h2>Projekt</h2>
+      <input type="file" id="uploadImage" accept="image/*">
+      <button id="downloadImage">Download</button>
+      <button id="saveProject">Projekt speichern</button>
+      <button id="loadProject">Projekt laden</button>
+      <div class="slider-container">
+        <label>Qualität:</label>
+        <input type="range" id="exportQuality" min="50" max="100" step="25" value="75">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Morphing</h2>
+      <div class="slider-container">
+        <label>Bild ↔ Fraktal</label>
+        <input type="range" id="morphSlider" min="0" max="100" value="0">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Fraktale</h2>
+      <div class="fractal-options">
+        <label><input type="checkbox" class="fractal" value="mandelbrot"> Mandelbrot</label>
+        <label><input type="checkbox" class="fractal" value="julia"> Julia</label>
+        <label><input type="checkbox" class="fractal" value="kaleidoskop"> Kaleidoskop</label>
+        <label><input type="checkbox" class="fractal" value="sierpinski"> Sierpinski</label>
+        <label><input type="checkbox" class="fractal" value="koch"> Koch-Kurve</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Fraktal-Eigenschaften</h2>
+      <div class="slider-container">
+        <label>Größe</label>
+        <input type="range" id="fractalSize" min="0.5" max="3" step="0.1" value="1">
+      </div>
+      <div class="slider-container">
+        <label>Wiederholungen</label>
+        <input type="range" id="fractalRepeats" min="1" max="10" value="3">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Effekte</h2>
+      <div class="color-picker">
+        <label>Primärfarbe</label>
+        <input type="color" id="primaryColor" value="#ff66cc">
+      </div>
+      <div class="color-picker">
+        <label>Sekundärfarbe</label>
+        <input type="color" id="secondaryColor" value="#66ccff">
+      </div>
+      <div class="slider-container">
+        <label>Sättigung</label>
+        <input type="range" id="saturation" min="0" max="200" value="100">
+      </div>
+      <div class="slider-container">
+        <label>Helligkeit</label>
+        <input type="range" id="brightness" min="0" max="200" value="100">
+      </div>
+      <div class="slider-container">
+        <label>Kontrast</label>
+        <input type="range" id="contrast" min="0" max="200" value="100">
+      </div>
+      <div class="slider-container">
+        <label>Rauschen</label>
+        <input type="range" id="noise" min="0" max="100" value="0">
+      </div>
+      <div class="slider-container">
+        <label>Struktur</label>
+        <input type="range" id="structure" min="0" max="100" value="0">
+      </div>
+      <div class="slider-container">
+        <label>Blur</label>
+        <input type="range" id="blur" min="0" max="10" value="0">
+      </div>
+    </div>
+
+    <div class="section">
+      <button id="randomize">Random</button>
+    </div>
+  </div>
+
+  <canvas id="psyCanvas"></canvas>
+</div>
+
+<div class="footer">
+  Generator von SomaWerk Medienproduktion – Exportierte Inhalte sind frei lizensierbar. © SomaWerk Medienproduktion
+</div>
+
+<script>
+const canvas = document.getElementById("psyCanvas");
+const ctx = canvas.getContext("2d");
+function resizeCanvas(){canvas.width=window.innerWidth-320;canvas.height=window.innerHeight-document.querySelector("header").offsetHeight-document.querySelector(".footer").offsetHeight;}
+window.addEventListener("resize",resizeCanvas);resizeCanvas();
+
+let uploadedImg=null,time=0;
+const fractalCheckboxes=document.querySelectorAll(".fractal");
+const morphSlider=document.getElementById("morphSlider");
+const primaryColor=document.getElementById("primaryColor");
+const secondaryColor=document.getElementById("secondaryColor");
+const saturation=document.getElementById("saturation");
+const brightness=document.getElementById("brightness");
+const contrast=document.getElementById("contrast");
+const noise=document.getElementById("noise");
+const structure=document.getElementById("structure");
+const blur=document.getElementById("blur");
+const fractalSize=document.getElementById("fractalSize");
+const fractalRepeats=document.getElementById("fractalRepeats");
+const exportQuality=document.getElementById("exportQuality");
+
+document.getElementById("uploadImage").addEventListener("change",e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{let img=new Image();img.onload=()=>{uploadedImg=img;};img.src=ev.target.result;};
+  reader.readAsDataURL(file);
+});
+document.getElementById("downloadImage").addEventListener("click",()=>{
+  let q=parseInt(exportQuality.value)/100;
+  let link=document.createElement("a");
+  link.download="psychedelic.png";
+  link.href=canvas.toDataURL("image/png",q);
+  link.click();
+});
+document.getElementById("saveProject").addEventListener("click",()=>{
+  let settings={morph:morphSlider.value,primary:primaryColor.value,secondary:secondaryColor.value,
+    saturation:saturation.value,brightness:brightness.value,contrast:contrast.value,noise:noise.value,
+    structure:structure.value,blur:blur.value,size:fractalSize.value,repeats:fractalRepeats.value,
+    fractals:[...fractalCheckboxes].map(f=>f.checked)};
+  localStorage.setItem("psyProject",JSON.stringify(settings));
+});
+document.getElementById("loadProject").addEventListener("click",()=>{
+  let s=localStorage.getItem("psyProject");if(!s)return;
+  let settings=JSON.parse(s);
+  morphSlider.value=settings.morph;primaryColor.value=settings.primary;secondaryColor.value=settings.secondary;
+  saturation.value=settings.saturation;brightness.value=settings.brightness;contrast.value=settings.contrast;
+  noise.value=settings.noise;structure.value=settings.structure;blur.value=settings.blur;
+  fractalSize.value=settings.size;fractalRepeats.value=settings.repeats;
+  fractalCheckboxes.forEach((f,i)=>f.checked=settings.fractals[i]);
+});
+document.getElementById("randomize").addEventListener("click",()=>{
+  primaryColor.value="#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,"0");
+  secondaryColor.value="#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,"0");
+  saturation.value=Math.floor(Math.random()*200);
+  brightness.value=Math.floor(Math.random()*200);
+  contrast.value=Math.floor(Math.random()*200);
+  noise.value=Math.floor(Math.random()*100);
+  structure.value=Math.floor(Math.random()*100);
+  blur.value=Math.floor(Math.random()*10);
+  fractalSize.value=(Math.random()*2.5+0.5).toFixed(1);
+  fractalRepeats.value=Math.floor(Math.random()*10)+1;
+  fractalCheckboxes.forEach(f=>f.checked=Math.random()<0.5);
+});
+
+function draw(){
+  const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if(uploadedImg)ctx.drawImage(uploadedImg,0,0,w,h);
+  let imgData=ctx.getImageData(0,0,w,h),data=imgData.data;
+  const morph=parseInt(morphSlider.value)/100;
+  const prim=hexToRgb(primaryColor.value),sec=hexToRgb(secondaryColor.value);
+  const sat=saturation.value/100,br=brightness.value/100,cont=contrast.value/100;
+  const size=parseFloat(fractalSize.value),reps=parseInt(fractalRepeats.value);
+
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      let idx=(y*w+x)*4;
+      let r=data[idx],g=data[idx+1],b=data[idx+2];
+      let fr=0,fg=0,fb=0,count=0;
+      if(fractalCheckboxes[0].checked){
+        let m=mandelbrot((x-w/2)/(0.5*size*w),(y-h/2)/(0.5*size*h),50)/50;
+        fr+=prim.r*m;fg+=prim.g*m;fb+=prim.b*m;count++;
+      }
+      if(fractalCheckboxes[1].checked){
+        let j=julia((x-w/2)/(0.5*size*w),(y-h/2)/(0.5*size*h),-0.7,0.27015,50)/50;
+        fr+=sec.r*j;fg+=sec.g*j;fb+=sec.b*j;count++;
+      }
+      if(fractalCheckboxes[2].checked){
+        let ang=Math.atan2(y-h/2,x-w/2)*reps;
+        let rad=Math.sqrt((x-w/2)**2+(y-h/2)**2)/50/size;
+        fr+=prim.r*(0.5+0.5*Math.sin(rad+ang+time));
+        fg+=sec.g*(0.5+0.5*Math.cos(rad+ang+time));
+        fb+=prim.b*(0.5+0.5*Math.sin(rad-ang+time));
+        count++;
+      }
+      if(fractalCheckboxes[3].checked && ((x*y)/(size*50)) % reps === 0){
+  fr += prim.r; fg += prim.g; fb += prim.b; count++;
+}
+if(fractalCheckboxes[4].checked && ((x+y)/(size*50)) % reps === 0){
+  fr += sec.r; fg += sec.g; fb += sec.b; count++;
+}
+
+      if(count>0){fr/=count;fg/=count;fb/=count;}
+      r=r*(1-morph)+fr*morph;g=g*(1-morph)+fg*morph;b=b*(1-morph)+fb*morph;
+      r=(r-128)*cont+128;r*=sat;r*=br;
+      g=(g-128)*cont+128;g*=sat;g*=br;
+      b=(b-128)*cont+128;b*=sat;b*=br;
+      r+=(Math.random()-0.5)*noise.value;
+      g+=(Math.random()-0.5)*noise.value;
+      b+=(Math.random()-0.5)*noise.value;
+      data[idx]=clamp(r,0,255);data[idx+1]=clamp(g,0,255);data[idx+2]=clamp(b,0,255);
+    }
+  }
+  ctx.putImageData(imgData,0,0);
+  if(blur.value>0){ctx.filter=`blur(${blur.value}px)`;ctx.drawImage(canvas,0,0);ctx.filter="none";}
+  if(structure.value>0){ctx.globalAlpha=structure.value/100;ctx.strokeStyle="rgba(255,255,255,0.05)";
+    for(let i=0;i<50;i++){ctx.beginPath();ctx.moveTo(Math.random()*w,Math.random()*h);ctx.lineTo(Math.random()*w,Math.random()*h);ctx.stroke();}
+    ctx.globalAlpha=1;}
+  time+=0.01;requestAnimationFrame(draw);
+}
+function mandelbrot(x,y,max){let zx=0,zy=0,i=0;while(zx*zx+zy*zy<4&&i<max){let xt=zx*zx-zy*zy+x;zy=2*zx*zy+y;zx=xt;i++;}return i;}
+function julia(x,y,cx,cy,max){let i=0;while(x*x+y*y<4&&i<max){let xt=x*x-y*y+cx;y=2*x*y+cy;x=xt;i++;}return i;}
+function clamp(v,min,max){return Math.min(Math.max(v,min),max);}
+function hexToRgb(hex){const bigint=parseInt(hex.slice(1),16);return{r:(bigint>>16)&255,g:(bigint>>8)&255,b:bigint&255};}
+draw();
+</script>
+</body>
+</html>
